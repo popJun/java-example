@@ -3,4 +3,4 @@
 
 ### init_test
 - maven-anturn-plugin的使用，主要可以用于项目初建时对数据库进行初始化。
-- 使用方法：双击db-init.bat 进行初始化
+- 使用方法：建立对应的数据库，双击db-init.bat 进行初始化
