@@ -1,5 +1,7 @@
 package com.popjun.word.demo.exp3;
 
+import com.aspose.words.Document;
+import com.aspose.words.License;
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.config.Configure;
 import com.deepoove.poi.data.DocxRenderData;
@@ -12,8 +14,9 @@ import com.popjun.word.demo.policy.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +75,7 @@ public class CreateRIIPReport {
         return config;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         //生成设备条目明细
         ReportData reportData = createReportData();
         List<DeviceDetails> deviceDetails = createDeviceDetails();
@@ -81,10 +84,41 @@ public class CreateRIIPReport {
         Configure configure = createConfigure();
         XWPFTemplate template = XWPFTemplate.compile("F://RIIP工具巡检报告生成模板.docx", configure).render(reportData);
 
-        FileOutputStream out = new FileOutputStream("F://out_RIIP工具巡检报告生成模板.docx");
+        FileOutputStream out = new FileOutputStream("F://out_RIIP工具巡检报告生成模板_temp.docx");
         template.write(out);
         out.flush();
         out.close();
         template.close();
+        // 验证License
+        if (!getLicense()) {
+            return;
+        }
+        FileInputStream fileInputStream =new FileInputStream("F://out_RIIP工具巡检报告生成模板_temp.docx");
+        Document doc = new Document(fileInputStream);
+
+        doc.updateFields();// 更新域
+        doc.save( "F://out_RIIP工具巡检报告生成模板.docx");
+        File file = new File("F://out_RIIP工具巡检报告生成模板_temp.docx");
+        fileInputStream.close();
+        if (file.exists()){
+            file.delete();
+        }
+    }
+    /**
+     * 获取license
+     *
+     * @return
+     */
+    public static boolean getLicense() {
+        boolean result = false;
+        try {
+            InputStream is = CreateRIIPReport.class.getClassLoader().getResourceAsStream("license.xml");
+            License aposeLic = new License();
+            aposeLic.setLicense(is);
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
